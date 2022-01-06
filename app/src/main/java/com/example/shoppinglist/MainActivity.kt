@@ -2,18 +2,17 @@ package com.example.shoppinglist
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.SearchView
-import android.widget.TextView
+import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -38,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         setTransparentStatusBar()
         handle()
         getdata()
+
         btnadd?.setOnClickListener {
             dialog()
             Log.d("twett",R.color.color1.toString()+"5555")
@@ -146,7 +146,9 @@ class MainActivity : AppCompatActivity() {
             val detail = datasms.getString(datasms.getColumnIndex("detail"))
             val update_at = datasms.getString(datasms.getColumnIndex("update_at"))
             val color = (datasms.getString(datasms.getColumnIndex("color"))).toInt()
-            data.add((Data(id,title,detail,update_at,color)))
+            val count = (datasms.getString(datasms.getColumnIndex("count"))).toFloat()
+            val checked = (datasms.getString(datasms.getColumnIndex("checked"))).toInt()
+            data.add((Data(id,title,detail,update_at,color,count,checked)))
 
         }
         recyclerView!!.adapter = DataAdapter(data)
@@ -159,7 +161,9 @@ class MainActivity : AppCompatActivity() {
         var title: String,
         var detail: String,
         var date: String,
-        var color:Int
+        var color:Int,
+        var count:Float,
+        var checked:Int
     )
     internal inner class DataAdapter(private val list: List<Data>) :
         RecyclerView.Adapter<DataAdapter.ViewHolder>() {
@@ -171,6 +175,7 @@ class MainActivity : AppCompatActivity() {
             return ViewHolder(view)
         }
 
+        @SuppressLint("ResourceAsColor")
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
             val data = list[position]
@@ -178,6 +183,11 @@ class MainActivity : AppCompatActivity() {
             holder.txttitle.text=data.title
             holder.txtdetail.text=data.detail
             holder.txtdate.text=data.date
+            chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar)
+            holder.circulNum.text = "${data.checked}/${data.count.toInt()}"
+            if (data.checked == data.count.toInt() && data.count.toInt() != 0){
+                holder.circulNum.setTextColor(Color.BLACK)
+            }
             when(data.color){
                 1 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background1)
                 2 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background2)
@@ -188,6 +198,14 @@ class MainActivity : AppCompatActivity() {
                 else -> holder.constraintLayout.setBackgroundResource(R.drawable.item_background1)
             }
 
+            holder.option.setOnClickListener {
+                options(holder.option)
+            }
+
+            holder.constraintLayout.setOnClickListener {
+                nextPage(data.id,data.title,data.color.toString())
+
+            }
 
         }
 
@@ -208,6 +226,13 @@ class MainActivity : AppCompatActivity() {
             val constraintLayout:ConstraintLayout=itemView.findViewById(R.id.con)
 
         }
+    }
+    fun nextPage(id:String,title:String,color: String){
+        val intent = Intent(this, ListActivity::class.java)
+        intent.putExtra("idlist", id)
+        intent.putExtra("txttitle", title)
+        intent.putExtra("color", color)
+        startActivity(intent)
     }
 
     fun swappisition(){
@@ -236,6 +261,63 @@ class MainActivity : AppCompatActivity() {
         touchHelper?.attachToRecyclerView(recyclerView)
         recyclerView!!.adapter = DataAdapter(data)
 
+    }
+    fun options(img:ImageView){
+        val popup = PopupMenu(this, img)
+        popup.menuInflater.inflate(R.menu.menu_options, popup.menu)
+        popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+            override fun onMenuItemClick(item: MenuItem): Boolean {
+                val i: Int = item.getItemId()
+                return when (i) {
+                    R.id.menu_delete -> {
+                        true
+                    }
+                    R.id.menu_golist -> {
+                        true
+                    }
+                    else -> {
+                        onMenuItemClick(item)
+                    }
+                }
+            }
+        })
+
+        popup.show()
+    }
+    fun chartprocess(pro:Float,checked: Float,chart:CircularProgressBar) {
+        chart?.apply {
+            // Set Progress
+            progress = 0f
+            // or with animation
+            setProgressWithAnimation(checked, 1000) // =1s
+
+            // Set Progress Max
+            progressMax = pro
+
+            // Set ProgressBar Color
+            progressBarColor = Color.MAGENTA
+            // or with gradient
+            progressBarColorStart = Color.MAGENTA
+            progressBarColorEnd =  Color.MAGENTA
+            progressBarColorDirection = CircularProgressBar.GradientDirection.TOP_TO_BOTTOM
+
+
+            backgroundProgressBarColor = Color.MAGENTA
+            // or with gradient
+            backgroundProgressBarColorStart =  Color.BLACK
+            backgroundProgressBarColorEnd =  Color.MAGENTA
+            backgroundProgressBarColorDirection =
+                CircularProgressBar.GradientDirection.TOP_TO_BOTTOM
+
+            // Set Width
+            progressBarWidth = 7f // in DP
+            backgroundProgressBarWidth = 3f // in DP
+
+            // Other
+            roundBorder = true
+            startAngle = 180f
+            progressDirection = CircularProgressBar.ProgressDirection.TO_RIGHT
+        }
     }
 
 }

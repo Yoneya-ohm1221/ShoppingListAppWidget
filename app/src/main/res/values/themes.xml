@@ -20,7 +20,9 @@
         <item name="windowNoTitle">true</item>
 
     </style>
+    <style name="Theme.ShoppingList.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
+    <style name="Theme.ShoppingList.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
     <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
     </style>

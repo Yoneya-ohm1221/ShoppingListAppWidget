@@ -10,9 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShoppingList">
         <activity
-            android:name=".MainActivity"
+            android:name=".ListActivity"
+            android:exported="true"
             android:theme="@style/Theme.ShoppingList.NoActionBar"
-            android:exported="true">
+            />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ShoppingList.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
