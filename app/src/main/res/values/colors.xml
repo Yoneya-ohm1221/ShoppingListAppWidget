@@ -10,11 +10,22 @@
     <color name="lightGray">#E6E6E6</color>
     <color name="finied">#00C508</color>
 
-
+    <color name="theam">#FFC107</color>
     <color name="color1">#FFFFFF</color>
+    <color name="color1_1">#000000</color>
+
     <color name="color2">#FFF8B5</color>
+    <color name="color2_1">#F1DB08</color>
+
     <color name="color3">#FFCDCD</color>
+    <color name="color3_1">#EF1E1E</color>
+
     <color name="color4">#ADFFB0</color>
+    <color name="color4_1">#00A306</color>
+
     <color name="color5">#B9EAFF</color>
+    <color name="color5_1">#0078AC</color>
+
     <color name="color6">#E4D5FF</color>
+    <color name="color6_1">#4F03D8</color>
 </resources>

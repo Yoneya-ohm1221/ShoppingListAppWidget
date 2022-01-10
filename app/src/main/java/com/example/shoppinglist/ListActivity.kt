@@ -9,10 +9,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -150,6 +147,9 @@ class ListActivity : AppCompatActivity() {
             holder.ck.setOnCheckedChangeListener { compoundButton, b ->
                  updateCheckBox(data.id,b)
             }
+            holder.imgoptionlist.setOnClickListener {
+                options(holder.imgoptionlist,data.id)
+            }
 
 
         }
@@ -175,5 +175,27 @@ class ListActivity : AppCompatActivity() {
         }else{
             db.updateCheckbok(id,"2")
         }
+    }
+    fun options(img:ImageView,id:String){
+        val popup = PopupMenu(this, img)
+        popup.menuInflater.inflate(R.menu.delete_options, popup.menu)
+        popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+            override fun onMenuItemClick(item: MenuItem): Boolean {
+                val i: Int = item.getItemId()
+                return when (i) {
+                    R.id.menu_delete -> {
+                        val db = SqlHelper(this@ListActivity)
+                        db.deletedetail(id)
+                        getdata(idlist)
+                        true
+                    }
+                    else -> {
+                        onMenuItemClick(item)
+                    }
+                }
+            }
+        })
+
+        popup.show()
     }
 }

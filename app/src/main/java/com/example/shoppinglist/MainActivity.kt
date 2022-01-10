@@ -128,11 +128,9 @@ class MainActivity : AppCompatActivity() {
 
     fun Activity.setTransparentStatusBar() {
         window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.statusBarColor = Color.TRANSPARENT
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;//
-        }
+            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        window.statusBarColor = Color.TRANSPARENT
+
     }
 
     @SuppressLint("Range")
@@ -183,23 +181,41 @@ class MainActivity : AppCompatActivity() {
             holder.txttitle.text=data.title
             holder.txtdetail.text=data.detail
             holder.txtdate.text=data.date
-            chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar)
+
             holder.circulNum.text = "${data.checked}/${data.count.toInt()}"
             if (data.checked == data.count.toInt() && data.count.toInt() != 0){
                 holder.circulNum.setTextColor(Color.BLACK)
             }
             when(data.color){
-                1 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background1)
-                2 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background2)
-                3 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background3)
-                4 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background4)
-                5 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background5)
-                6 ->  holder.constraintLayout.setBackgroundResource(R.drawable.item_background6)
+                1 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background1)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color1_1)
+                }
+                2 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background2)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color2_1)
+                }
+                3 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background3)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color3_1)
+                }
+                4 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background4)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color4_1)
+                }
+                5 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background5)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color5_1)
+                }
+                6 -> {
+                    holder.constraintLayout.setBackgroundResource(R.drawable.item_background6)
+                    chartprocess(data.count,data.checked.toFloat(),holder.circularProgressBar,R.color.color6_1)
+                }
                 else -> holder.constraintLayout.setBackgroundResource(R.drawable.item_background1)
             }
 
             holder.option.setOnClickListener {
-                options(holder.option)
+                options(holder.option,data.id,data.title,data.color.toString())
             }
 
             holder.constraintLayout.setOnClickListener {
@@ -262,7 +278,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView!!.adapter = DataAdapter(data)
 
     }
-    fun options(img:ImageView){
+    fun options(img:ImageView,id:String,title:String,color: String){
         val popup = PopupMenu(this, img)
         popup.menuInflater.inflate(R.menu.menu_options, popup.menu)
         popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
@@ -270,9 +286,13 @@ class MainActivity : AppCompatActivity() {
                 val i: Int = item.getItemId()
                 return when (i) {
                     R.id.menu_delete -> {
+                        val db=SqlHelper(this@MainActivity)
+                        db.deletelist(id)
+                        getdata()
                         true
                     }
                     R.id.menu_golist -> {
+                        nextPage(id,title,color.toString())
                         true
                     }
                     else -> {
@@ -284,7 +304,7 @@ class MainActivity : AppCompatActivity() {
 
         popup.show()
     }
-    fun chartprocess(pro:Float,checked: Float,chart:CircularProgressBar) {
+    fun chartprocess(pro:Float,checked: Float,chart:CircularProgressBar,color: Int) {
         chart?.apply {
             // Set Progress
             progress = 0f
@@ -292,20 +312,23 @@ class MainActivity : AppCompatActivity() {
             setProgressWithAnimation(checked, 1000) // =1s
 
             // Set Progress Max
-            progressMax = pro
+            if (pro!=0f){
+                progressMax = pro
+            }
+
 
             // Set ProgressBar Color
-            progressBarColor = Color.MAGENTA
+            progressBarColor = resources.getColor(color)
             // or with gradient
-            progressBarColorStart = Color.MAGENTA
-            progressBarColorEnd =  Color.MAGENTA
+
+
             progressBarColorDirection = CircularProgressBar.GradientDirection.TOP_TO_BOTTOM
 
 
-            backgroundProgressBarColor = Color.MAGENTA
+            backgroundProgressBarColor = resources.getColor(R.color.theam)
             // or with gradient
-            backgroundProgressBarColorStart =  Color.BLACK
-            backgroundProgressBarColorEnd =  Color.MAGENTA
+            backgroundProgressBarColorStart =  Color.GRAY
+            backgroundProgressBarColorEnd =  Color.GRAY
             backgroundProgressBarColorDirection =
                 CircularProgressBar.GradientDirection.TOP_TO_BOTTOM
 

@@ -55,6 +55,7 @@ class SqlHelper(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,null,D
         onCreate(db)
     }
 
+    //page1
     fun add_tomylist(title : String, detail : String,color:String ){
 
         val values = ContentValues()
@@ -83,6 +84,13 @@ class SqlHelper(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,null,D
         return sdf.format(Date())
     }
 
+    fun deletelist(id:String){
+        val db = this.writableDatabase
+        db.delete(TABLE_detail, detail_id_mylist + "=?", arrayOf(id))
+        db.delete(TABLE_mylist, mylist_idmylist + "=?", arrayOf(id))
+    }
+
+    //page2
     fun add_todetail(title : String, id : String ){
         val values = ContentValues()
         values.put(detail_title, title)
@@ -109,6 +117,11 @@ class SqlHelper(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,null,D
         val whereargs = arrayOf(id)
         db.update(TABLE_detail,values,whereclause,whereargs)
         db.close()
+    }
+
+    fun deletedetail(id:String){
+        val db = this.writableDatabase
+        db.delete(TABLE_detail, detail_id_detail + "=?", arrayOf(id))
     }
 
 }

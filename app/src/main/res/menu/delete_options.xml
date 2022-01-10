@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/menu_delete"
+        android:title="ลบรายการ"
+        android:icon="@drawable/ic_baseline_add_24"
+        android:iconTint="#F44336"
+        android:iconTintMode="src_in"
+        />
+
+</menu>
