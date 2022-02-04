@@ -24,6 +24,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import java.util.*
 import kotlin.collections.ArrayList
+import android.view.Gravity
+
+import android.graphics.PixelFormat
+import android.net.Uri
+import android.provider.Settings
+
+import android.view.WindowManager
+import android.app.ActivityManager
+import android.content.Context
+import com.google.android.material.navigation.NavigationView
+import android.R.menu
+
+
+
+
 
 class MainActivity : AppCompatActivity() {
     var data = ArrayList<Data>()
@@ -37,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         setTransparentStatusBar()
         handle()
         getdata()
-
+        stopService(Intent(this, Bubbles::class.java))
         btnadd?.setOnClickListener {
             dialog()
             Log.d("twett",R.color.color1.toString()+"5555")
@@ -215,7 +230,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             holder.option.setOnClickListener {
-                options(holder.option,data.id,data.title,data.color.toString())
+                options(holder.option,data.id,data.title,data.color.toString(),data.count.toString(),data.checked.toString())
             }
 
             holder.constraintLayout.setOnClickListener {
@@ -278,9 +293,15 @@ class MainActivity : AppCompatActivity() {
         recyclerView!!.adapter = DataAdapter(data)
 
     }
-    fun options(img:ImageView,id:String,title:String,color: String){
+    fun options(img:ImageView,id:String,title:String,color: String,max: String,checked: String){
+
         val popup = PopupMenu(this, img)
-        popup.menuInflater.inflate(R.menu.menu_options, popup.menu)
+        if(isMyServiceRunning(Bubbles::class.java)){
+            popup.menuInflater.inflate(R.menu.menu_options2, popup.menu)
+        }else{
+            popup.menuInflater.inflate(R.menu.menu_options, popup.menu)
+        }
+
         popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
             override fun onMenuItemClick(item: MenuItem): Boolean {
                 val i: Int = item.getItemId()
@@ -292,7 +313,11 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.menu_golist -> {
-                        nextPage(id,title,color.toString())
+                      nextPage(id,title,color.toString())
+                        true
+                    }
+                    R.id.menu_bb -> {
+                        bb(color,max,checked)
                         true
                     }
                     else -> {
@@ -342,5 +367,45 @@ class MainActivity : AppCompatActivity() {
             progressDirection = CircularProgressBar.ProgressDirection.TO_RIGHT
         }
     }
+    fun bb(color:String,max:String,checked: String) {
+        if(checkHasDrawOverlayPermissions()) {
+            if(!isMyServiceRunning(Bubbles::class.java)){
+              //  startService(Intent(this, Bubbles::class.java))
+                val serviceIntent = Intent(this, Bubbles::class.java)
+                serviceIntent.putExtra("color", color)
+                serviceIntent.putExtra("max", max)
+                serviceIntent.putExtra("checked", checked)
+                startService(serviceIntent);
+                finish()
 
+            }else{
+                stopService(Intent(this, Bubbles::class.java))
+            }
+
+        }else{
+            navigateDrawPermissionSetting()
+        }
+    }
+    private fun checkHasDrawOverlayPermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        }else{
+            true
+        }
+    }
+    private fun navigateDrawPermissionSetting() {
+        val intent1 = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName"))
+        startActivityForResult(intent1, 2)
+    }
+    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
 }
