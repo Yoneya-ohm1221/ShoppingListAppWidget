@@ -317,7 +317,7 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.menu_bb -> {
-                        bb(color,max,checked)
+                        bb(color,max,checked,id,title)
                         true
                     }
                     else -> {
@@ -367,7 +367,7 @@ class MainActivity : AppCompatActivity() {
             progressDirection = CircularProgressBar.ProgressDirection.TO_RIGHT
         }
     }
-    fun bb(color:String,max:String,checked: String) {
+    fun bb(color:String,max:String,checked: String,id: String,title: String) {
         if(checkHasDrawOverlayPermissions()) {
             if(!isMyServiceRunning(Bubbles::class.java)){
               //  startService(Intent(this, Bubbles::class.java))
@@ -375,6 +375,8 @@ class MainActivity : AppCompatActivity() {
                 serviceIntent.putExtra("color", color)
                 serviceIntent.putExtra("max", max)
                 serviceIntent.putExtra("checked", checked)
+                serviceIntent.putExtra("id", id)
+                serviceIntent.putExtra("title", title)
                 startService(serviceIntent);
                 finish()
 

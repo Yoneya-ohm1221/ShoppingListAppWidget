@@ -50,7 +50,6 @@ class ListActivity : AppCompatActivity() {
         txttitle?.text = intent.getStringExtra("txttitle").toString()
         val color = intent.getStringExtra("color").toString()
         var colorset=0
-        Log.d("sfdsf",color)
         con?.visibility = View.GONE
         when(color.toInt()){
             1 ->  colorset=(R.color.color1)
@@ -114,7 +113,6 @@ class ListActivity : AppCompatActivity() {
             val title = datasms.getString(datasms.getColumnIndex("title"))
             val status = datasms.getString(datasms.getColumnIndex("status"))
             data.add((Data(id, title,status)))
-            Log.d("dsfsf",title+id+idlist)
         }
         recyclerView!!.adapter = DataAdapter(data)
 

@@ -13,7 +13,10 @@ import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.math.roundToInt
 import android.util.Log
+import android.widget.CheckBox
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.shoppinglist.database.SqlHelper
 import com.mikhaellopez.circularimageview.CircularImageView
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
 
@@ -32,6 +35,8 @@ class Bubbles: Service() {
     var color:String?=null
     var max:String?=null
     var checked:String?=null
+    var data = ArrayList<Data>()
+
     override fun onBind(intent: Intent?): IBinder? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -53,7 +58,10 @@ class Bubbles: Service() {
         color = extras!!["color"] as String?
         max = extras!!["max"] as String?
         checked = extras!!["checked"] as String?
-        Log.d("color",color!!)
+        var idlist = extras!!["id"] as String?
+        var title = extras!!["title"] as String?
+
+
         this.params = params
         //Specify the view position
         params.gravity =
@@ -66,18 +74,27 @@ class Bubbles: Service() {
         var con:ConstraintLayout = floatingView.findViewById(R.id.conbb)
         var imgbb: ImageView = floatingView.findViewById(R.id.imgbb)
         var imgclosebb:ImageView = floatingView.findViewById(R.id.imgclosebb)
+        var imgbackbb:ImageView = floatingView.findViewById(R.id.imgclosebb2)
         var chartprocess:CircularProgressBar = floatingView.findViewById(R.id.circularProgressBar2)
         var numchart:TextView= floatingView.findViewById(R.id.num2)
+        var recyclerView:RecyclerView = floatingView.findViewById(R.id.recycleViewbb)
+        var txttitle :TextView = floatingView.findViewById(R.id.textView2)
 
 
         manager.addView(floatingView, params)
         /////imgbb
+        getdata(idlist!!,recyclerView)
+        txttitle.text=title
         numchart.text = "${checked}/${max!!.toFloat().toInt().toString()}"
-        set(color!!.toInt(),imgbb,chartprocess, max!!.toFloat(),checked!!.toFloat())
+        set(color!!.toInt(),imgbb,chartprocess, max!!.toFloat(),checked!!.toFloat(),con)
         con.visibility =View.GONE
         imgclosebb.setOnClickListener {
+            stopService(Intent(this, Bubbles::class.java))
+        }
+        imgbackbb.setOnClickListener {
             con.visibility =View.GONE
         }
+
 
             floatingView.findViewById<View>(R.id.imgopen)?.setOnTouchListener(object :
                 View.OnTouchListener {
@@ -97,7 +114,7 @@ class Bubbles: Service() {
                             return true
                         }
                         MotionEvent.ACTION_UP -> {
-                           openApp(motionEvent,initialTouchX!!,initialTouchY!!)
+                           openApp(motionEvent,initialTouchX!!,initialTouchY!!,idlist,title!!,color!!)
                             return true
                         }
 
@@ -147,60 +164,75 @@ class Bubbles: Service() {
             }
         })
 
-
-
         return START_NOT_STICKY
 
     }
-
     override fun onDestroy() {
         super.onDestroy()
         manager.removeView(floatingView)
     }
 
-    fun set(color: Int,imageView: ImageView,circularProgressBar:CircularProgressBar,max:Float,checked:Float){
+    fun set(color: Int,imageView: ImageView,circularProgressBar:CircularProgressBar,max:Float,checked:Float,con: ConstraintLayout){
         when(color){
             1 -> {
                 imageView.setImageResource(R.drawable.item_background1_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color1_1)
+                con.setBackgroundResource(R.drawable.item_background1)
             }
             2 -> {
                 imageView.setImageResource(R.drawable.item_background2_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color2_1)
+                con.setBackgroundResource(R.drawable.item_background2)
             }
             3 -> {
                 imageView.setImageResource(R.drawable.item_background3_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color3_1)
+                con.setBackgroundResource(R.drawable.item_background3)
             }
             4 -> {
                 imageView.setImageResource(R.drawable.item_background4_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color4_1)
+                con.setBackgroundResource(R.drawable.item_background4)
             }
             5 -> {
                 imageView.setImageResource(R.drawable.item_background5_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color5_1)
+                con.setBackgroundResource(R.drawable.item_background5)
             }
             6 -> {
                 imageView.setImageResource(R.drawable.item_background6_circle)
                 chartprocess(max,checked,circularProgressBar,R.color.color6_1)
+                con.setBackgroundResource(R.drawable.item_background6)
             }
             else -> imageView.setImageResource(R.drawable.item_background1)
         }
     }
 
-    private fun openApp(event: MotionEvent,initialTouchX:Float,initialTouchY:Float): Boolean {
+    private fun openApp(event: MotionEvent,initialTouchX:Float,initialTouchY:Float,id:String,title:String,color: String): Boolean {
         val diffPosicaoX = (event.rawX - initialTouchX).toInt()
         val diffPosicaoY = (event.rawY - initialTouchY).toInt()
 
         val singleClick: Boolean = diffPosicaoX < 5 && diffPosicaoY < 5
 
         if (singleClick) {
-            val intent = Intent(this@Bubbles, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            stopSelf()
+          //  val intent = Intent(this@Bubbles, MainActivity::class.java)
+           // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+           // startActivity(intent)
+           // stopSelf()
+
+            nextPage(id,title,color)
         }
         return true
+    }
+
+    fun nextPage(id:String,title:String,color: String){
+        val intent = Intent(this, ListActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("idlist", id)
+        intent.putExtra("txttitle", title)
+        intent.putExtra("color", color)
+        startActivity(intent)
+        stopSelf()
     }
 
     private fun openDetail(event: MotionEvent,initialTouchX:Float,initialTouchY:Float,con:ConstraintLayout): Boolean {
@@ -235,8 +267,6 @@ class Bubbles: Service() {
 
 
             progressBarColorDirection = CircularProgressBar.GradientDirection.TOP_TO_BOTTOM
-
-
             backgroundProgressBarColor = resources.getColor(R.color.theam)
             // or with gradient
             backgroundProgressBarColorStart = Color.GRAY
@@ -254,5 +284,73 @@ class Bubbles: Service() {
             progressDirection = CircularProgressBar.ProgressDirection.TO_RIGHT
         }
     }
+    @SuppressLint("Range")
+    fun getdata(idlist:String,recyclerView:RecyclerView){
+        data.clear()
+        val db= SqlHelper(this)
+        val datasms =db.getAlldetail(idlist)
+        while (datasms.moveToNext()){
+            val id = datasms.getString(datasms.getColumnIndex("id_detail"))
+            val title = datasms.getString(datasms.getColumnIndex("title"))
+            val status = datasms.getString(datasms.getColumnIndex("status"))
+            data.add((Data(id, title,status)))
+        }
+        recyclerView!!.adapter = DataAdapter(data)
 
+    }
+
+    class Data(
+        var id: String,
+        var title: String,
+        var status:String
+    )
+
+    internal inner class DataAdapter(private val list: List<Data>) :
+        RecyclerView.Adapter<DataAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view: View = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_listdetail,
+                parent, false
+            )
+            return ViewHolder(view)
+        }
+
+        @SuppressLint("ResourceAsColor")
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+            val data = list[position]
+            holder.data = data
+            holder.txtdetail.text=data.title
+            if(data.status=="1"){
+                holder.ck.isChecked =true
+            }
+            holder.ck.setOnCheckedChangeListener { compoundButton, b ->
+                updateCheckBox(data.id,b)
+                //chartprocess()
+            }
+
+        }
+
+        override fun getItemCount(): Int {
+            return list.size
+        }
+
+        internal inner class ViewHolder(itemView: View) :
+            RecyclerView.ViewHolder(itemView) {
+
+            var data: Data? = null
+            val txtdetail:TextView = itemView.findViewById(R.id.txttitledetail)
+            val ck: CheckBox = itemView.findViewById(R.id.checkBox)
+            val imgoptionlist:ImageView = itemView.findViewById(R.id.imgoptionlist)
+
+        }
+    }
+    fun updateCheckBox(id:String,boolean: Boolean){
+        val db= SqlHelper(this)
+        if(boolean){
+            db.updateCheckbok(id,"1")
+        }else{
+            db.updateCheckbok(id,"2")
+        }
+    }
 }
